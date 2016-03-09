@@ -1,16 +1,23 @@
-function mseq = mgen(init, fbconnection)
+function mequ = mgen(reg_width, init, fb, num_width)
 
-n = length(fbconnection); 
-N = 2^n - 1;
+N = lcm(2^reg_width-1, num_width);
+temp_ans = zeros(N, 1);
+mask = 2^reg_width-1;
+reg = init;
 
-mseq = zeros(1,N);
-register = init;
-newregister = register;
-mseq(1) = register(n);
+for i=1:N
+    temp_ans(i) = bitget(reg, reg_width);
+    new = bitand(reg, fb);
+    sum = 0;
+    for j=1:reg_width
+        sum = sum + bitget(new, j);
+    end
+    new = mod(sum, 2);
+    reg = bitand(bitor(bitshift(reg, 1), new), mask);
+end
 
-for i=2:N      
-    newregister(1) = mod(sum(fbconnection.*register),2);          
-	newregister(2:n) = register(1:(n-1));        
-    register = newregister;     
-    mseq(i) = register(n); 
+temp_ans = reshape(temp_ans, 5, []);
+mequ = temp_ans(1, :);
+for i=2:num_width
+    mequ = mequ*2 + temp_ans(i, :);
 end
